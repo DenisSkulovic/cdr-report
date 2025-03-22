@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Upload CDR CSV{% endblock %}
+
+{% block body %}
+    <h1>Upload CDR CSV</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.csv_file) }}
+        <button class="btn btn-primary">Upload</button>
+    {{ form_end(form) }}
+
+    {% for label, messages in app.flashes %}
+        {% for msg in messages %}
+            <div style="margin-top: 1em; color: {{ label == 'error' ? 'red' : 'green' }};">
+                {{ msg }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <hr>
+    <h2>Customer Stats</h2>
+    <table id="stats-table" border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Total Calls</th>
+                <th>Total Duration</th>
+                <th>Same Continent Calls</th>
+                <th>Same Continent Duration</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        async function fetchStats() {
+            try {
+                const res = await fetch('/stats');
+                const data = await res.json();
+
+                const tbody = document.querySelector('#stats-table tbody');
+                tbody.innerHTML = '';
+
+                for (const [customerId, stats] of Object.entries(data)) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${customerId}</td>
+                        <td>${stats.total_calls}</td>
+                        <td>${stats.total_duration}</td>
+                        <td>${stats.same_continent_calls}</td>
+                        <td>${stats.same_continent_duration}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            } catch (err) {
+                console.error('Failed to fetch stats:', err);
+            }
+        }
+
+        fetchStats();
+        setInterval(fetchStats, 3000); // poll every 3 seconds
+    </script>
+{% endblock %}
