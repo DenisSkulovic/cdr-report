@@ -58,7 +58,9 @@ cdr-report/
 
 ```bash
 docker-compose up --build
+docker exec -it cdr_php php bin/console doctrine:migrations:migrate
 ```
+⚠️ Note: The database is empty after the first launch. Running migrations will create the necessary table(s). Until then, stats and uploads will throw errors.
 
 Then visit:
 
