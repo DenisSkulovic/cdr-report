@@ -6,21 +6,22 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GeolocationService
 {
-    private const API_KEY = 'b9c9e0c9e04642f5a66b2278c4cb1e25';
     private const COUNTRY_INFO_FILE = __DIR__ . '/../../var/data/countryInfo.txt';
 
     private HttpClientInterface $httpClient;
+    private string $apiKey;
     private array $prefixToContinent = [];
 
-    public function __construct(HttpClientInterface $httpClient)
+    public function __construct(HttpClientInterface $httpClient, string $geolocationApiKey)
     {
         $this->httpClient = $httpClient;
+        $this->apiKey = $geolocationApiKey;
         $this->loadCountryPrefixes();
     }
 
     public function getContinentByIp(string $ip): string
     {
-        $url = "https://api.ipgeolocation.io/ipgeo?apiKey=" . self::API_KEY . "&ip=" . urlencode($ip);
+        $url = "https://api.ipgeolocation.io/ipgeo?apiKey={$this->apiKey}&ip=" . urlencode($ip);
 
         try {
             $response = $this->httpClient->request('GET', $url);
